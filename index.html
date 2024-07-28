@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <div id="hacking">
+                <span id="1">poop</span>
+                <span id="2">poop2</span>
+                <span id="3">poop3</span>
+                <span id="4">poop4</span>
+            </div>
+        </div>
+    </body>
+
+    <script>
+        const hacking = document.querySelector("#hacking");
+
+        for(let child of hacking.children){
+            for(let char of child.textContent){
+                console.log(char);
+            }
+
+        }
+    </script>
+</html>
