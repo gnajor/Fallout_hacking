@@ -1,26 +1,14 @@
 [
     {
-        "easy": [
+        "level_1": 
             {
                 "words_amount": 8,
                 "letter_amount": 4
-            },
-            {
-                "words_amount": 11,
-                "letter_amount": 4
-            },
-            {
-                "words_amount": 15,
-                "letter_amount": 4
-            },
-            {
-                "words_amount": 18,
-                "letter_amount": 4
             }
-        ]
+
     },
     {
-        "medium": [
+        "level_2": [
             {
                 "words_amount": 8,
                 "letter_amount": 5
@@ -40,7 +28,7 @@
         ]
     },
     {
-        "hard": [
+        "level_3": [
             {
                 "words_amount": 8,
                 "letter_amount": 6

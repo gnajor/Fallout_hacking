@@ -1,4 +1,39 @@
 <?php
+require_once ("help_functions.php");
+$allowed_method = "GET";
+
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    header("Access-Control-Allow-Headers: *");
+    header("Access-Control-Allow-Methods: *");
+    header("Access-Control-Allow-Origin: *");
+    exit();
+} else {
+    header("Access-Control-Allow-Origin: *");
+}
+
+$request_method = $_SERVER["REQUEST_METHOD"];
+
+if($request_method === $allowed_method){
+    $request_data = get_request_data();
+    $user_input_difficulty = $request_data["difficulty"];
+
+    if(isset($user_input_difficulty)){
+        $difficulties = get_database("difficulty");
+
+        foreach($difficulties as $difficulty){
+            if(isset($difficulty[$user_input_difficulty])){
+                $words_amount = $difficulty[$user_input_difficulty]["words_amount"];
+                $letter_amount = $difficulty[$user_input_difficulty]["letter_amount"];
+
+                $send_array = get_interactive_data(32, 12, $words_amount, $letter_amount);
+                $send_array["non_interactive"] = get_non_interactive_data(32);
+
+                send_as_json(200, $send_array);
+            }
+        }
+    }
+}
+
 
 
 function get_interactive_data($row_amount, $column_amount, $word_amount, $letter_amount){
@@ -11,10 +46,17 @@ function get_interactive_data($row_amount, $column_amount, $word_amount, $letter
     $char_amount_with_words = $char_amount - ($word_amount * $letter_amount);
 
     $words = [];
+    $correct_word;
     for($i = 0; $i < $word_amount; $i++){
         $random_index = rand(0, count($filtererd_word_array) - 1);
         $random_word = $filtererd_word_array[$random_index];
-        $words[] = $random_word;
+
+        if($i === $word_amount - 1){
+            $correct_word = $random_word;
+        }
+        else{
+            $words[] = $random_word;
+        }
     }
 
     $chars = [];
@@ -24,7 +66,7 @@ function get_interactive_data($row_amount, $column_amount, $word_amount, $letter
         $chars[] = $random_char;
     }
 
-    return ["words" => $words, "special_chars" => $chars];
+    return ["correct_word" => $correct_word, "words" => $words, "special_chars" => $chars];
 }
 
 function get_non_interactive_data($data_amount){
@@ -69,7 +111,6 @@ function get_non_interactive_data($data_amount){
     return $non_interactive_chars;
 }
 
-
 function filter_words_by_letter_amount($letter_amount, $words){
     $result = [];
 
@@ -81,11 +122,11 @@ function filter_words_by_letter_amount($letter_amount, $words){
     return $result;
 }
 
-$send_array = get_interactive_data(32, 12, 8, 4);
+/* $send_array = get_interactive_data(32, 12, 8, 4);
 $send_array["non_interactive"] = get_non_interactive_data(32);
 
 echo "<pre>";
 echo var_dump($send_array);
-echo "</pre>";
+echo "</pre>"; */
 
 ?>
