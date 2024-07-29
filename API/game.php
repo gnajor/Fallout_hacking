@@ -28,13 +28,49 @@ if($request_method === $allowed_method){
                 $send_array = get_interactive_data(32, 12, $words_amount, $letter_amount);
                 $send_array["non_interactive"] = get_non_interactive_data(32);
 
-                send_as_json(200, $send_array);
+                set_data_structure($send_array, $words_amount, $letter_amount, 32, 12);
+
+                //send_as_json(200, $send_array);
             }
         }
     }
 }
 
+function set_data_structure($game_array, $words_amount, $letters_amount, $rows, $columns){
+    $total_words_chars = $words_amount * $letters_amount;
+    $total_special_chars = ($rows * $columns) - $total_words_chars;
+    $loop_amount = $total_special_chars + $words_amount; 
 
+    $interactive_data = get_word_char_order(35, $loop_amount, $game_array["words"], $game_array["special_chars"]);
+
+    echo "<pre>";
+    echo var_dump($interactive_data);
+    echo "</pre>"; 
+}
+
+function get_word_char_order($chance, $loop_amount, $words, $special_chars){
+    $words_chars = [];
+
+    for($i = 0; $i < $loop_amount; $i++){
+        $words_last = count($words) - 1;
+        $spec_chars_last = count($special_chars) - 1;
+
+        $random_num = rand(1, $chance);
+
+        if($random_num === 1 && $words_last != -1){
+            $chosen_word = $words[$words_last];
+            array_pop($words);
+            $words_chars[] = $chosen_word;
+        }
+        else{
+            $chosen_char = $special_chars[$spec_chars_last];
+            array_pop($special_chars);
+            $words_chars[] = $chosen_char;
+        }
+    }
+
+    return $words_chars;
+}
 
 function get_interactive_data($row_amount, $column_amount, $word_amount, $letter_amount){
     $chars_array = json_decode(file_get_contents("database/chars.json"), true);
@@ -54,9 +90,8 @@ function get_interactive_data($row_amount, $column_amount, $word_amount, $letter
         if($i === $word_amount - 1){
             $correct_word = $random_word;
         }
-        else{
-            $words[] = $random_word;
-        }
+        $words[] = $random_word;
+
     }
 
     $chars = [];
