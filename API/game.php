@@ -25,12 +25,12 @@ if($request_method === $allowed_method){
                 $words_amount = $difficulty[$user_input_difficulty]["words_amount"];
                 $letter_amount = $difficulty[$user_input_difficulty]["letter_amount"];
 
-                $send_array = get_interactive_data(32, 12, $words_amount, $letter_amount);
-                $send_array["non_interactive"] = get_non_interactive_data(32);
+                $game_array = get_interactive_data(32, 12, $words_amount, $letter_amount);
+                $game_array["non_interactive"] = get_non_interactive_data(32);
 
-                set_data_structure($send_array, $words_amount, $letter_amount, 32, 12);
+                $structured_game_array = set_data_structure($game_array, $words_amount, $letter_amount, 32, 12);
 
-                //send_as_json(200, $send_array);
+                send_as_json(200, ["game_data" => $structured_game_array, "correct_word" => $game_array["correct_word"]]);
             }
         }
     }
@@ -41,19 +41,29 @@ function set_data_structure($game_array, $words_amount, $letters_amount, $rows, 
     $total_special_chars = ($rows * $columns) - $total_words_chars;
     $loop_amount = $total_special_chars + $words_amount; 
 
-    $interactive_data = get_word_char_order(35, $loop_amount, $game_array["words"], $game_array["special_chars"]);
+    $interactive_data = get_word_char_order(30, $loop_amount, $game_array["words"], $game_array["special_chars"]);
+    $interactive_data_split = array_chunk($interactive_data, count($interactive_data)/2);
 
-    echo "<pre>";
-    echo var_dump($interactive_data);
-    echo "</pre>"; 
+    $non_interactive_data = $game_array["non_interactive"];
+    $non_interactive_data_split = array_chunk($non_interactive_data, count($non_interactive_data)/2);
+
+    $refined_data_structure = [];
+
+    $refined_data_structure["column_1"] = $non_interactive_data_split[0];
+    $refined_data_structure["column_2"] = $interactive_data_split[0];
+    $refined_data_structure["column_3"] = $non_interactive_data_split[1];
+    $refined_data_structure["column_4"] = $interactive_data_split[1];
+
+    return $refined_data_structure;
 }
 
 function get_word_char_order($chance, $loop_amount, $words, $special_chars){
     $words_chars = [];
 
-    for($i = 0; $i < $loop_amount; $i++){
+    while(count($words_chars) != $loop_amount){
         $words_last = count($words) - 1;
         $spec_chars_last = count($special_chars) - 1;
+
 
         $random_num = rand(1, $chance);
 
@@ -62,7 +72,7 @@ function get_word_char_order($chance, $loop_amount, $words, $special_chars){
             array_pop($words);
             $words_chars[] = $chosen_word;
         }
-        else{
+        if($random_num > 1 && $spec_chars_last != -1 ){
             $chosen_char = $special_chars[$spec_chars_last];
             array_pop($special_chars);
             $words_chars[] = $chosen_char;
@@ -156,12 +166,4 @@ function filter_words_by_letter_amount($letter_amount, $words){
     }
     return $result;
 }
-
-/* $send_array = get_interactive_data(32, 12, 8, 4);
-$send_array["non_interactive"] = get_non_interactive_data(32);
-
-echo "<pre>";
-echo var_dump($send_array);
-echo "</pre>"; */
-
 ?>

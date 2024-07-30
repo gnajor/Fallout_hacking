@@ -5,15 +5,13 @@ const _state = {
     "game": {
         "score": 1,
         "level": 1,
-        "words": [],
         "correct_word": undefined, 
-        "special_chars": [],
-        "non_interactive": [],
+        "game_data": [],
         "attempts_remaining": 4,
     },
     "user_based": {
         "highscore": 0,
-        "username": null,
+        "username": undefined,
     },
     "leaderboard": []
 }
@@ -30,11 +28,10 @@ PubSub.subscribe({
     listener:async () => {
         const response = await fetch(`../API/game.php?difficulty=level_${_state.game.level}`)
         const resource = await response.json();
+        const {game_data, correct_word} = resource;
 
-        _state.game.special_chars = resource.special_chars;
-        _state.game.correct_word = resource.correct_word;
-        _state.game.non_interactive = resource.non_interactive;
-        _state.game.words = resource.words;
+        _state.game.correct_word = correct_word;        
+        _state.game.game_data = game_data;
 
         PubSub.publish({
             event: "render_game",
