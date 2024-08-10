@@ -33,7 +33,7 @@ function render_interactable_item(parents, correct_word, item_data){
             });
 
             PubSub.publish({
-                event: "show_hover_word",
+                event: "show_mark_hover_word",
                 details: {"parent": hovered_word_parent, "hovered_word": hovered_word}
             });
         });
@@ -76,7 +76,7 @@ function render_interactable_item(parents, correct_word, item_data){
             item.classList.add("make_green");
 
             PubSub.publish({
-                event: "show_hover_word",
+                event: "show_mark_hover_word",
                 details: {"parent": hovered_word_parent, "hovered_word": item.textContent}
             });
         });

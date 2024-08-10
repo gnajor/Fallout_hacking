@@ -3,7 +3,7 @@ import * as game from "./components/game/game.js";
 
 const _state = {
     "game": {
-        "score": 1,
+        "score": 0,
         "level": 1,
         "correct_word": undefined, 
         "game_data": [],

@@ -143,7 +143,7 @@ function get_non_interactive_data($data_amount){
     }
 
     $random_char_1 = $letters_nums_array[$random_index_1];
-    $random_char_2 = $letters_nums_array[$random_index_2]; //error? undefined key -2
+    $random_char_2 = $letters_nums_array[$random_index_2]; //error? undefined key -2 //-1
     
     $non_interactive_chars = [];
     $random_row = rand(6, 20);

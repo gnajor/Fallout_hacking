@@ -7,93 +7,110 @@ function enable_arrow_controls(parents, correct_word, game_structure, interactab
     const interactable_array_1 = interactable_column_1.children;
     const interactable_array_2 = interactable_column_2.children;
 
-    window.addEventListener("keydown", function on_control_activate(event){
+    for(let i = 0; i < interactable_array_1.length; i++){
+        interactable_array_1[i].classList.remove("make_green");
+        interactable_array_2[i].classList.remove("make_green");
+    }
 
-        if(event.key === "Control"){
-            if(game_columns * (game_rows/2) === interactable_array_1.length){
-                for(let i = 0; i < interactable_array_1.length; i++){
-                    interactable_array_1[i].classList.remove("make_green");
-                    interactable_array_2[i].classList.remove("make_green");
-                }
-                let current_element_hover = interactable_array_1[0];
-                let current_element_parent = interactable_column_1;
-                let next_element_parent = interactable_column_2;
+    //if first symbol is word
+    let current_element_hover = interactable_array_1[0];
+    let current_element_parent = interactable_column_1;
+    let next_element_parent = interactable_column_2;
 
+    current_element_hover.classList.add("make_green");
+    document.body.classList.add("no_cursor");
+    
+    let next_movement = get_next_movement(current_element_hover, current_element_parent, next_element_parent , game_structure);
+
+    PubSub.publish({
+        event:"show_mark_hover_word",
+        details: {"parent": parent, "hovered_word": interactable_array_1[0].textContent}
+    }); 
+
+    window.addEventListener("keydown", (event) => {
+        for(let i = 0; i < interactable_array_1.length; i++){
+            interactable_array_1[i].classList.remove("make_green");
+            interactable_array_2[i].classList.remove("make_green");
+        }
+
+        function set_next_movement(move){
+            current_element_hover = next_movement[move].movement;
+            current_element_parent = next_movement[move].main_parent;
+            next_element_parent = next_movement[move].secondary_parent;
+
+            let hovered_word = "";
+
+            if(current_element_hover.className.includes("word")){
+                const word = document.querySelectorAll("." + current_element_hover.className);
+                const index = get_index_from_collection(current_element_hover, current_element_hover.children);    
+
+                word.forEach(letter => {
+                    letter.classList.add("make_green");
+                    hovered_word += letter.textContent;
+                });  
+            }
+            else{
                 current_element_hover.classList.add("make_green");
+                hovered_word = current_element_hover.textContent;
+            }
+
+            PubSub.publish({
+                event:"show_mark_hover_word",
+                details: {"parent": parent, "hovered_word": hovered_word}
+            }); 
+        }
+        
+        switch(event.key){
+            case "ArrowUp":
+                set_next_movement("up");
                 document.body.classList.add("no_cursor");
-                
-                let next_movement = get_next_movement(current_element_hover, current_element_parent, next_element_parent , game_structure);
+                break;
+            case "w":
+                set_next_movement("up");
+                document.body.classList.add("no_cursor");
+                break;
+
+            case "ArrowDown":
+                set_next_movement("down");
+                document.body.classList.add("no_cursor");
+                break;
+            case "s":
+                set_next_movement("down");
+                document.body.classList.add("no_cursor");
+                break;
+
+            case "ArrowLeft":
+                set_next_movement("left");
+                document.body.classList.add("no_cursor");
+                break;
+            case "a":
+                set_next_movement("left");
+                document.body.classList.add("no_cursor");
+                break;
+
+            case "ArrowRight":
+                set_next_movement("right");
+                document.body.classList.add("no_cursor");
+                break;
+            case "d":
+                set_next_movement("right");
+                document.body.classList.add("no_cursor");
+                break;
+
+            case "Enter":
 
                 PubSub.publish({
-                    event:"show_hover_word",
-                    details: {"parent": parent, "hovered_word": interactable_array_1[0].textContent}
-                }); 
-
-
-                window.addEventListener("keydown", function on_arrows_move(event){
-
-                    for(let i = 0; i < interactable_array_1.length; i++){
-                        interactable_array_1[i].classList.remove("make_green");
-                        interactable_array_2[i].classList.remove("make_green");
-                    }
-
-                    function set_next_movement(move){
-                        current_element_hover = next_movement[move].movement;
-                        current_element_parent = next_movement[move].main_parent;
-                        next_element_parent = next_movement[move].secondary_parent;
-    
-                        let hovered_word = "";
-
-                        if(current_element_hover.className.includes("word")){
-                            const word = document.querySelectorAll("." + current_element_hover.className);
-                            const index = get_index_from_collection(current_element_hover, current_element_hover.children);    
-
-                            //current_element_hover = current_element_parent.children[index + word.length];
-
-                            word.forEach(letter => {
-                                letter.classList.add("make_green");
-                                hovered_word += letter.textContent;
-                            });  
-                        }
-                        else{
-                            current_element_hover.classList.add("make_green");
-                            hovered_word = current_element_hover.textContent;
-                        }
-
-                        PubSub.publish({
-                            event:"show_hover_word",
-                            details: {"parent": parent, "hovered_word": hovered_word}
-                        }); 
-                    }
-                    
-                    switch(event.key){
-                        case "ArrowUp":
-                            set_next_movement("up");
-                            break;
-                        case "ArrowDown":
-                            set_next_movement("down");
-                            break;
-                        case "ArrowLeft":
-                            set_next_movement("left");
-                            break;
-                        case "ArrowRight":
-                            set_next_movement("right");
-                            break;
-                        case "Enter":
-                            PubSub.publish({
-                                event: "render_word_likeness",
-                                details:{
-                                            "parent": guesses_parent, 
-                                            "chosen_string": current_element_hover.textContent, 
-                                            "correct_word": correct_word
-                                        }
-                            });
-
-                    }
-                    next_movement = get_next_movement(current_element_hover, current_element_parent, next_element_parent , game_structure);
+                    event: "render_word_likeness",
+                    details:{
+                                "parent": guesses_parent, 
+                                "chosen_string": current_element_hover.textContent, 
+                                "correct_word": correct_word
+                            }
                 });
-            }
+
         }
+        next_movement = get_next_movement(current_element_hover, current_element_parent, next_element_parent , game_structure);
+        
     });
 
     window.addEventListener("mousemove", (event) => {

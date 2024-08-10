@@ -75,24 +75,27 @@ function render_game(parent, game){
                                     "hovered_word_parent": hovered_word
                                 } 
                     });
+
+                    //when animation finished
+                    if(i === (game_rows/2 * game_columns) - 1){
+
+                        PubSub.publish({
+                            event: "enable_arrow_controls",
+                            details: {
+                                "parent": hovered_word,
+                                "guesses_parent":  guesses,
+                                "correct_word": correct_word,
+                                "game_rows": game_rows,
+                                "game_columns": game_columns,
+                                "interactable_column_1": interactable_column_1,
+                                "interactable_column_2": interactable_column_2
+                            }
+                        });
+                    }
                 }, time * i);
             }  
-
         }, time * end + time) // 1300 //2500 
     }
-    
-    PubSub.publish({
-        event: "enable_arrow_controls",
-        details: {
-            "parent": hovered_word,
-            "guesses_parent":  guesses,
-            "correct_word": correct_word,
-            "game_rows": game_rows,
-            "game_columns": game_columns,
-            "interactable_column_1": interactable_column_1,
-            "interactable_column_2": interactable_column_2
-        }
-    })
 }
 
 
