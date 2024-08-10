@@ -1,31 +1,61 @@
-#wrapper{
+body{
+    cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%3E%3Cpolygon%20points='16%2C2%2026%2C26%206%2C26'%20style='fill%3Alime%3Bstroke%3Ablack%3Bstroke-width%3A1'%20transform='rotate(330%2016%2016)'%20%2F%3E%3C%2Fsvg%3E"), auto;
+    background-color: black;
+}
+
+body.no_cursor{
+    cursor: none;
+}
+
+#game:has(#game_grid){
     display: flex;
     justify-content: center;
-    align-items: center;
+    gap:30px;
+
+    font-family:monospace;
+    color: #0cff06;
+    font-size: 2.5em;
+}
+
+#wrapper span{
+    display: inline-flex;
 }
 
 #game_grid{
-    display: grid;
-    grid-template-columns: auto 1fr auto 1fr;
-    font-size: 1.3em;
-    width: 800px;
-    text-align: center;
+    display: flex;
 }
 
-#game_grid #non_interactive_container_1,
-#game_grid #non_interactive_container_2{
+#game_grid #non_interactable_column_1,
+#game_grid #non_interactable_column_2{
     display: flex;
     flex-direction: column;
+    margin:0 15px;
 }
 
-#game_grid #interactive_container_1,
-#game_grid #interactive_container_2{
+#game_grid #interactable_column_1,
+#game_grid #interactable_column_2{
     display: grid;
-    grid-template-columns: repeat(12, auto);
-    grid-template-rows: repeat(16, 20px);
-
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(16, 1fr); 
 }
 
 #game_grid .char{
-    margin:2px;
+
 }
+
+#game_grid .word{
+    display: flex;  
+}
+
+#game_grid .make_green{
+    background-color: #0cff06;
+    color:black;
+}
+
+#word_likeness_column{
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content:end;
+}
+

@@ -1,41 +1,98 @@
 import { PubSub } from "../../logic/pubsub.js";
-import * as game_item from "./game_item/game_item.js";
+import * as interactable_item from "./game_items/interactable_item/interactable_item.js";
+import * as non_interactable_item from "./game_items/non_interactable_item/non_interactable_item.js";
+import * as arrow_controls from "./arrow_controls/arrow_controls.js";
 
 function render_game(parent, game){
-    const {score, level, correct_word, game_data, attempts_remaining} = game;
+    const {score, level, correct_word, game_data, attempts_remaining, game_rows, game_columns} = game;
 
-    const parent_names = [
-        "non_interactive_container_1",
-        "interactive_container_1",
-        "non_interactive_container_2",
-        "interactive_container_2"
-    ];
+    parent.innerHTML = `<div id="game">
+                            <div id="game_grid">    
+                                <div id="non_interactable_column_1"></div>
+                                <div id="interactable_column_1"></div>
+                                <div id="non_interactable_column_2"></div>
+                                <div id="interactable_column_2"></div>
+                            </div>
+                            <div id="word_likeness_column">
+                                <div id="guesses"></div>
+                                <div id="hovered_word"></div>
+                            </div>
+                        </div>`;
+                
+    const non_interactable_column_1 = parent.querySelector("#non_interactable_column_1");
+    const non_interactable_column_2 = parent.querySelector("#non_interactable_column_2");
+    const interactable_column_1 = parent.querySelector("#interactable_column_1");
+    const interactable_column_2 = parent.querySelector("#interactable_column_2");
+    const guesses = parent.querySelector("#guesses");
+    const hovered_word = parent.querySelector("#hovered_word");
+    
+    for(let y = 0; y < game_rows/2; y++){ 
+        let start = y * game_columns;
+        let end = (y + 1) * game_columns;
+        let time = 10;
 
-    const game_grid = document.createElement("div");
-    game_grid.id = "game_grid";
-    parent.appendChild(game_grid);
-
-    for(let name of parent_names){
-        const parent = document.createElement("div");
-        parent.id = name;
-        game_grid.appendChild(parent);
-    }
-
-    let counter = 0;
-    for(let key in game_data){
-        let game_key = game_data[key]; 
-
-        for(let y = 0; y < game_key.length; y++){
-            const item = game_key[y];
-
+        setTimeout(() => {
             PubSub.publish({
-                event: "render_game_item",
-                details: {"correct_word": correct_word, "item": item, "parent": document.querySelector("#" + parent_names[counter])}
+                event: "render_non_interactable_item",
+                details:{"item": game_data["column_1"][y], "parent": non_interactable_column_1} 
             });
-        }
-        counter++;
+        }, time * start * 2); // 0 //2400
+
+        setTimeout(() => {
+            for(let i = start; i < end; i++){ 
+                setTimeout(() => {
+                    PubSub.publish({
+                        event: "render_interactable_item",
+                        details:{
+                                    "correct_word": correct_word,
+                                    "item": game_data["column_2"][i], 
+                                    "item_parent": interactable_column_1,
+                                    "guesses_parent": guesses,
+                                    "hovered_word_parent": hovered_word
+                                } 
+                    });
+                }, time * i);
+            }  
+        }, time * start + time) // 100 // 1300 
+
+        setTimeout(() => {
+            PubSub.publish({
+                event: "render_non_interactable_item",
+                details:{"item": game_data["column_3"][y], "parent": non_interactable_column_2} 
+            });
+        }, time * end + start * time); // 1200 // 
+
+        setTimeout(() => {
+            for(let i = start; i < end; i++){ 
+                setTimeout(() => {
+                    PubSub.publish({
+                        event: "render_interactable_item",
+                        details:{
+                                    "correct_word": correct_word,
+                                    "item": game_data["column_4"][i], 
+                                    "item_parent": interactable_column_2,
+                                    "guesses_parent": guesses,
+                                    "hovered_word_parent": hovered_word
+                                } 
+                    });
+                }, time * i);
+            }  
+
+        }, time * end + time) // 1300 //2500 
     }
     
+    PubSub.publish({
+        event: "enable_arrow_controls",
+        details: {
+            "parent": hovered_word,
+            "guesses_parent":  guesses,
+            "correct_word": correct_word,
+            "game_rows": game_rows,
+            "game_columns": game_columns,
+            "interactable_column_1": interactable_column_1,
+            "interactable_column_2": interactable_column_2
+        }
+    })
 }
 
 

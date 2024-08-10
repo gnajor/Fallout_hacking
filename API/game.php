@@ -26,22 +26,31 @@ if($request_method === $allowed_method){
                 $letter_amount = $difficulty[$user_input_difficulty]["letter_amount"];
 
                 $game_array = get_interactive_data(32, 12, $words_amount, $letter_amount);
+
                 $game_array["non_interactive"] = get_non_interactive_data(32);
 
-                $structured_game_array = set_data_structure($game_array, $words_amount, $letter_amount, 32, 12);
+                $structured_game_array = set_data_structure($game_array, 32, 12);
 
-                send_as_json(200, ["game_data" => $structured_game_array, "correct_word" => $game_array["correct_word"]]);
+                send_as_json(200, [
+                    "game_data" => $structured_game_array, 
+                    "correct_word" => $game_array["correct_word"], 
+                    "game_structure" => [
+                        "rows" => 32,
+                        "columns" => 12
+                        ]
+                    ]); 
             }
         }
     }
 }
 
-function set_data_structure($game_array, $words_amount, $letters_amount, $rows, $columns){
-    $total_words_chars = $words_amount * $letters_amount;
-    $total_special_chars = ($rows * $columns) - $total_words_chars;
-    $loop_amount = $total_special_chars + $words_amount; 
+function set_data_structure($game_array, $rows, $columns){
+    $loop_amount = $rows * $columns;
+
+    //echo var_dump($total_special_chars);
 
     $interactive_data = get_word_char_order(30, $loop_amount, $game_array["words"], $game_array["special_chars"]);
+
     $interactive_data_split = array_chunk($interactive_data, count($interactive_data)/2);
 
     $non_interactive_data = $game_array["non_interactive"];
@@ -70,15 +79,24 @@ function get_word_char_order($chance, $loop_amount, $words, $special_chars){
         if($random_num === 1 && $words_last != -1){
             $chosen_word = $words[$words_last];
             array_pop($words);
-            $words_chars[] = $chosen_word;
+            $char_array = str_split($chosen_word);
+            $word_length = count($char_array);
+
+            for($char_index = 0; $char_index < $word_length; $char_index++){
+                $words_chars[] = $char_array[$char_index] . "_word" . $words_last + 1;
+            } 
         }
-        if($random_num > 1 && $spec_chars_last != -1 ){
+        elseif($random_num > 1 && $spec_chars_last != -1 ){
             $chosen_char = $special_chars[$spec_chars_last];
             array_pop($special_chars);
             $words_chars[] = $chosen_char;
         }
     }
 
+/*     echo "<pre>";
+    echo var_dump($words_chars);
+    echo "</pre>"; */
+    
     return $words_chars;
 }
 
@@ -92,17 +110,15 @@ function get_interactive_data($row_amount, $column_amount, $word_amount, $letter
     $char_amount_with_words = $char_amount - ($word_amount * $letter_amount);
 
     $words = [];
-    $correct_word;
     for($i = 0; $i < $word_amount; $i++){
         $random_index = rand(0, count($filtererd_word_array) - 1);
         $random_word = $filtererd_word_array[$random_index];
-
-        if($i === $word_amount - 1){
-            $correct_word = $random_word;
-        }
         $words[] = $random_word;
 
     }
+
+    $random_index = rand(0, count($words) - 1);
+    $correct_word = $words[$random_index];
 
     $chars = [];
     for($i = 0; $i < $char_amount_with_words; $i++){
@@ -127,7 +143,7 @@ function get_non_interactive_data($data_amount){
     }
 
     $random_char_1 = $letters_nums_array[$random_index_1];
-    $random_char_2 = $letters_nums_array[$random_index_2];
+    $random_char_2 = $letters_nums_array[$random_index_2]; //error? undefined key -2
     
     $non_interactive_chars = [];
     $random_row = rand(6, 20);
@@ -141,7 +157,7 @@ function get_non_interactive_data($data_amount){
 
         if($row_index > $random_row){
             $new_index = $random_index_2 + 1;
-            $new_char = $letters_nums_array[$new_index];
+            $new_char = $letters_nums_array[$new_index];    //error undefined key -a
 
             $row_data = $fixed_chars . $random_char_1 . $new_char;
         }
