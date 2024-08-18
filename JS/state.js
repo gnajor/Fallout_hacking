@@ -7,7 +7,7 @@ const _state = {
         "level": 1,
         "correct_word": undefined, 
         "game_data": [],
-        "attempts_remaining": 5,
+        "attempts_remaining": 4,
         "game_rows": null,
         "game_columns": null
     },
@@ -18,10 +18,30 @@ const _state = {
     "leaderboard": []
 }
 
-const State = {
+export const State = {
     get: (entity) => {
         const _state_clone = JSON.parse(JSON.stringify(_state));
         return _state_clone[entity];
+    },
+    delete_attempt: () => {
+        const new_attempts = _state.game.attempts_remaining - 1;
+
+        _state.game.attempts_remaining = new_attempts;
+        PubSub.publish({
+            event: "delete_attempt",
+            details: null
+        });
+
+        if(new_attempts === 0){
+            
+            PubSub.publish({
+                event: "lockout",
+                details: null
+            });
+        }
+        else{
+
+        }
     }
 }
 

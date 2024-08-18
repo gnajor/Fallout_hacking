@@ -2,6 +2,13 @@
     box-sizing: border-box;
 }
 
+@font-face {
+    font-family: "fallout_font";
+    src: url("media/fonts/Share_Tech_Mono/ShareTechMono-Regular.ttf");
+ }
+
 body{
     margin: 0;
+    background-image: url("media/images/carbon_fiber_texture.jpg");
+    min-height: 100vh;
 }

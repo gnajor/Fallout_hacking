@@ -1,4 +1,5 @@
 import { PubSub } from "../../../logic/pubsub.js";
+import { remove_items_marked, get_item_and_mark, get_full_word} from "../../../logic/functions.js";
 
 function enable_arrow_controls(parents, correct_word, game_structure, interactable_containers){
     const {game_columns, game_rows} = game_structure;
@@ -7,10 +8,7 @@ function enable_arrow_controls(parents, correct_word, game_structure, interactab
     const interactable_array_1 = interactable_column_1.children;
     const interactable_array_2 = interactable_column_2.children;
 
-    for(let i = 0; i < interactable_array_1.length; i++){
-        interactable_array_1[i].classList.remove("make_green");
-        interactable_array_2[i].classList.remove("make_green");
-    }
+    remove_items_marked("make_green");
 
     //if first symbol is word
     let current_element_hover = interactable_array_1[0];
@@ -23,91 +21,81 @@ function enable_arrow_controls(parents, correct_word, game_structure, interactab
     let next_movement = get_next_movement(current_element_hover, current_element_parent, next_element_parent , game_structure);
 
     PubSub.publish({
-        event:"show_mark_hover_word",
+        event:"show_hover_word",
         details: {"parent": parent, "hovered_word": interactable_array_1[0].textContent}
     }); 
 
     window.addEventListener("keydown", (event) => {
-        for(let i = 0; i < interactable_array_1.length; i++){
-            interactable_array_1[i].classList.remove("make_green");
-            interactable_array_2[i].classList.remove("make_green");
-        }
-
+        
         function set_next_movement(move){
             current_element_hover = next_movement[move].movement;
             current_element_parent = next_movement[move].main_parent;
             next_element_parent = next_movement[move].secondary_parent;
 
-            let hovered_word = "";
-
-            if(current_element_hover.className.includes("word")){
-                const word = document.querySelectorAll("." + current_element_hover.className);
-                const index = get_index_from_collection(current_element_hover, current_element_hover.children);    
-
-                word.forEach(letter => {
-                    letter.classList.add("make_green");
-                    hovered_word += letter.textContent;
-                });  
-            }
-            else{
-                current_element_hover.classList.add("make_green");
-                hovered_word = current_element_hover.textContent;
-            }
+            const hovered_word = get_item_and_mark(current_element_hover);
 
             PubSub.publish({
-                event:"show_mark_hover_word",
+                event:"show_hover_word",
                 details: {"parent": parent, "hovered_word": hovered_word}
             }); 
         }
         
         switch(event.key){
             case "ArrowUp":
+                remove_items_marked("make_green");
                 set_next_movement("up");
                 document.body.classList.add("no_cursor");
                 break;
             case "w":
+                remove_items_marked("make_green");
                 set_next_movement("up");
                 document.body.classList.add("no_cursor");
                 break;
 
             case "ArrowDown":
+                remove_items_marked("make_green");
                 set_next_movement("down");
                 document.body.classList.add("no_cursor");
                 break;
             case "s":
+                remove_items_marked("make_green");
                 set_next_movement("down");
                 document.body.classList.add("no_cursor");
                 break;
 
             case "ArrowLeft":
+                remove_items_marked("make_green");
                 set_next_movement("left");
                 document.body.classList.add("no_cursor");
                 break;
             case "a":
+                remove_items_marked("make_green");
                 set_next_movement("left");
                 document.body.classList.add("no_cursor");
                 break;
 
             case "ArrowRight":
+                remove_items_marked("make_green");
                 set_next_movement("right");
                 document.body.classList.add("no_cursor");
                 break;
             case "d":
+                remove_items_marked("make_green");
                 set_next_movement("right");
                 document.body.classList.add("no_cursor");
                 break;
 
             case "Enter":
+                const chosen_string = get_full_word("make_green");
 
                 PubSub.publish({
                     event: "render_word_likeness",
                     details:{
                                 "parent": guesses_parent, 
-                                "chosen_string": current_element_hover.textContent, 
+                                "chosen_string": chosen_string, 
                                 "correct_word": correct_word
                             }
                 });
-
         }
         next_movement = get_next_movement(current_element_hover, current_element_parent, next_element_parent , game_structure);
         
@@ -172,7 +160,7 @@ function get_next_movement(element, current_parent, next_parent, game_structure)
         for(let i = 0; i < word.length; i++){
             const letter = word[i];
             const letter_index = get_index_from_collection(letter, primary);
-            const row = String(letter_index/game_columns)[0];
+            const row = String(Math.floor(letter_index/game_columns));
             last_letter_index = letter_index;
             row_indexes.push(row);
 

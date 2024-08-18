@@ -1,16 +1,22 @@
 import { PubSub } from "../../../logic/pubsub.js";
+import {State} from "../../../state.js";
 
 function render_word_likeness(parent, word_data){
     const {correct_word, chosen_string} = word_data;
     const correct_string = correct_word.toUpperCase();
-
     const likeness = check_likeness(correct_string, chosen_string);
 
     parent.innerHTML += `<div class="guess">
                             <div class="show_word">>${chosen_string}</div>
-                            <div>>Entry denied</div>
+                            <div class="lock">>Entry denied</div>
                             <div class="show_likeness">>Likeness=${likeness}</div>
-                         <div>`;
+                        <div>`;
+
+    State.delete_attempt();
+
+    if(correct_string.length === likeness){
+        console.log("you win");   
+    }
 }
 
 function check_likeness(correct_string, chosen_string){
@@ -28,6 +34,16 @@ function check_likeness(correct_string, chosen_string){
     }
     return likeness;
 }
+
+PubSub.subscribe({
+    event: "lockout",
+    listener: (details) => {
+        const show_likeness = document.querySelectorAll(".show_likeness");
+        const last_likeness = show_likeness[show_likeness.length - 1];
+
+        last_likeness.textContent = "Init Lockout";
+    }
+});
 
 
 PubSub.subscribe({
