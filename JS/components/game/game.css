@@ -1,31 +1,45 @@
 body{
     cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%3E%3Cpolygon%20points='16%2C2%2026%2C26%206%2C26'%20style='fill%3Alime%3Bstroke%3Ablack%3Bstroke-width%3A1'%20transform='rotate(330%2016%2016)'%20%2F%3E%3C%2Fsvg%3E"), auto;
 }
-
+/*no cursor when arrows pressed*/
 body.no_cursor{
     cursor: none;
 }
 
+/* no cursor during animation */
+/* body.no_cursor_animation{
+    cursor: none;
+} */
+
 #game{
     display: flex;
-    position: absolute;
-    background-color: black;
 
     font-family: fallout_font;
     color: #0cff06;
-    font-size: 2em;
-    padding:50px;
+    font-size: 2rem;
 }
 
-#wrapper span{
-    display: inline-flex;
+#game span{
+    opacity: 0;
+}
+
+#game #attempts{
+    opacity: 0;
+}
+
+#wrapper #game .show{
+    opacity: 1;
 }
 
 #game #game_info{
-    padding:10px 0;
+    padding: 0.8rem 0;
     display: flex;
     flex-direction: column;
-    gap:10px;
+    gap:0.8rem;
+}
+
+#game #game_info > div{
+    display: flex;
 }
 
 #game #attempts_remaining{
@@ -34,19 +48,19 @@ body.no_cursor{
 
 #game #attempts{
     display: flex;
-    gap:10px;
+    gap:0.8rem;
     align-items: center;
 }
 
 #game #attempts .attempt{
     background-color: #0cff06;
-    width: 0.5em;
-    height: 0.7em;
+    width: 1rem;
+    height: 1.3rem;
 }
 
 #game_grid{
     display: flex;
-    gap:15px;
+    gap:1rem;
 }
 
 #game_grid #non_interactable_column_1,
@@ -72,7 +86,6 @@ body.no_cursor{
 }
 
 #word_likeness_column{
-    width: 8em;
     display: flex;
     flex-direction: column;
     justify-content:end;

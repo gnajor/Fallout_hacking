@@ -23,6 +23,11 @@ export const State = {
         const _state_clone = JSON.parse(JSON.stringify(_state));
         return _state_clone[entity];
     },
+
+    post: (enity, body) => {
+        
+    },
+
     delete_attempt: () => {
         const new_attempts = _state.game.attempts_remaining - 1;
 
@@ -39,11 +44,10 @@ export const State = {
                 details: null
             });
         }
-        else{
-
-        }
     }
 }
+
+
 
 PubSub.subscribe({
     event: "get_game_data",
@@ -60,7 +64,7 @@ PubSub.subscribe({
         PubSub.publish({
             event: "render_game",
             details: {
-                "parent": document.querySelector("#wrapper"),
+                "parent": document.querySelector("#terminal_screen"),
                 "data": State.get("game")
             }
         });

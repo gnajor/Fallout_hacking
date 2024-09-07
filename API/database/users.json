@@ -1,0 +1,12 @@
+[
+    {
+        "id": 1,
+        "username": "admin",
+        "token": "dd94709528bb1c83d08f3088d4043f4742891f4f"
+    },
+    {
+        "id": 2,
+        "username": "poop",
+        "token": "f953559311866903e4100e7a4e6cf2abc870e4a3"
+    }
+]

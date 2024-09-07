@@ -1,0 +1,46 @@
+#start_screen video{
+    width: 114rem;
+}
+
+#start_screen #video_container{
+    display: flex;
+    justify-content: center;
+}
+
+#start_screen #video_text{
+    position: absolute;
+    top:86%;
+    font-size: 3rem;
+    color: #0cff06;
+    display: none;
+    filter: blur(2px);
+}
+
+#start_screen #video_text.show{
+    display: block;
+}
+
+#small_screen #sound_control{
+    display: flex;
+    align-items: center;
+}
+
+#small_screen #sound_control img{
+    width: 4rem;
+}
+
+#small_screen #sound_control 
+
+#small_screen #sound_control .show{
+    display: block;
+}
+
+#small_screen #sound_control .unshow{
+    display: none;
+}
+
+#wrapper:has(#start_screen) #small_screen{
+    height: 10rem;
+    justify-content: space-around;
+    border-radius: 2rem;
+}

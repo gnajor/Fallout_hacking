@@ -1,5 +1,11 @@
+html{
+    font-size: 14px;
+}
+
 *{
     box-sizing: border-box;
+    font-family: fallout_font;
+    color: #0cff06;
 }
 
 @font-face {
@@ -10,5 +16,93 @@
 body{
     margin: 0;
     background-image: url("media/images/carbon_fiber_texture.jpg");
+    background-attachment: fixed;
     min-height: 100vh;
+    display: flex;
+}
+
+#wrapper:has(#game){
+    pointer-events: none;
+}
+
+#wrapper:has(#game).events{
+    pointer-events: all;
+}
+
+#flex_container{
+    display: flex;
+    gap:8rem;
+    position: absolute;
+    top:50%;
+    transform: translate(5%, -50%);
+}
+
+#terminal_screen{
+    border-radius: 10rem;
+    box-shadow: 0 0 7rem 5rem rgba(0, 0, 0, 0.95), 0 0 7rem 6rem rgba(255, 255, 255, 0.10);
+    background-color: black;
+    overflow: hidden;
+
+    width: 75rem;
+    height: 58rem;
+}
+
+#terminal_screen:has(#start_screen){
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+#terminal_screen:has(#game){
+    padding:5rem 0;
+    padding-left: 10rem;
+    padding-right: 5rem;
+}
+
+#small_screen{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    font-family: fallout_font;
+
+    box-shadow: 0 0 3rem 2rem rgba(0, 0, 0, 1), 0 0 3rem 1rem rgba(255, 255, 255, 0.2);
+    margin-top: 10rem;
+    width: 10rem;
+    height: 6rem;
+    background-color: black;
+    border-radius: 0.7rem;
+    color: #0cff06;
+}
+
+pre{
+    margin:0;
+    padding:0;
+    font-family: fallout_font;
+    font-size: inherit;
+}
+
+@media screen and (max-width: 1440px){
+    html{
+        font-size:12px;
+    }
+}
+
+@media screen and (max-width: 1250px){
+    html{
+        font-size:11px;
+    }
+}
+
+@media screen and (max-width: 1200px){
+    html{
+        font-size:10px;
+    }
+}
+
+@media screen and (max-width: 1080px){
+    html{
+        font-size:9px;
+    }
 }

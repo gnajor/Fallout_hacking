@@ -4,6 +4,8 @@ import * as non_interactable_item from "./game_items/non_interactable_item/non_i
 import * as arrow_controls from "./arrow_controls/arrow_controls.js";
 import * as attempt from "./attempts/attempt/attempt.js";
 import * as attempts from "./attempts/attempts.js";
+import * as animation from "./typewriter_animation/typewriter_animation.js";
+import * as game_info from "./game_info/game_Info.js";
 
 
 function render_game(parent, game){
@@ -11,11 +13,7 @@ function render_game(parent, game){
 
     parent.innerHTML = `<div id="game">
                             <div id = "left_container"> 
-                                <div id="game_info"> 
-                                    <div id="company_text">Welcome to WAYNE Industries (TM) Termlink</div>
-                                    <div id="password_text">Password Required</div>
-                                    <div id="attempts_remaining">Attempts Remaining:</div>  
-                                </div>
+                                <div id="game_info"></div>
                                 <div id="game_grid">    
                                     <div id="non_interactable_column_1"></div>
                                     <div id="interactable_column_1"></div>
@@ -28,6 +26,7 @@ function render_game(parent, game){
                                 <div id="hovered_word"></div>
                             </div>
                         </div>`;
+
                 
     const non_interactable_column_1 = parent.querySelector("#non_interactable_column_1");
     const non_interactable_column_2 = parent.querySelector("#non_interactable_column_2");
@@ -35,116 +34,83 @@ function render_game(parent, game){
     const interactable_column_2 = parent.querySelector("#interactable_column_2");
     const guesses = parent.querySelector("#guesses");
     const hovered_word = parent.querySelector("#hovered_word");
+    const game_info = parent.querySelector("#game_info");
 
-    const company_text = parent.querySelector("#company_text");
-    const password_text = parent.querySelector("#password_text");
-    const attempts_text = parent.querySelector("#attempts_remaining");
-    
-    const company_chars = parent.querySelector("#company_text").textContent.split("");
-    const password_chars = parent.querySelector("#password_text").textContent.split("");
-    const attempts_chars = parent.querySelector("#attempts_remaining").textContent.split("");
+    const rows = game_rows/2
+    const game_grid = rows * game_columns; 
 
-    company_text.textContent = "";
-    password_text.textContent = "";
-    attempts_text.textContent = "";
+    for(let i = 0; i < game_grid; i++){
+        PubSub.publish({
+            event: "render_interactable_item",
+            details:{
+                        "correct_word": correct_word,
+                        "item": game_data["column_2"][i], 
+                        "item_parent": interactable_column_1,
+                        "guesses_parent": guesses,
+                        "hovered_word_parent": hovered_word
+                    } 
+        });
 
-/*     const time = 15;
-    
-    animate_top_text(company_text, company_chars);
+        PubSub.publish({
+            event: "render_interactable_item",
+            details:{
+                        "correct_word": correct_word,
+                        "item": game_data["column_4"][i], 
+                        "item_parent": interactable_column_2,
+                        "guesses_parent": guesses,
+                        "hovered_word_parent": hovered_word
+                    } 
+        });
+    }
 
-    setTimeout(() => {
-        animate_top_text(password_text, password_chars);
-    }, time * company_chars.length);
+    for(let i = 0; i < rows; i++){
+        PubSub.publish({
+            event: "render_non_interactable_item",
+            details:{"item": game_data["column_1"][i], "parent": non_interactable_column_1} 
+        });
 
-    setTimeout(() => {
-        animate_top_text(attempts_text, attempts_chars);
-    }, (time * company_chars.length) + (time * password_chars.length));
+        PubSub.publish({
+            event: "render_non_interactable_item",
+            details:{"item": game_data["column_3"][i], "parent": non_interactable_column_2} 
+        });
+    }
 
-    setTimeout(() => {
-        for(let y = 0; y < game_rows/2; y++){ 
-            let start = y * game_columns;
-            let end = (y + 1) * game_columns;
+    PubSub.publish({
+        event: "render_game_info",
+        details: {"parent": game_info, "attempts": attempts_remaining}
+    })
 
-            setTimeout(() => {
-                PubSub.publish({
-                    event: "render_non_interactable_item",
-                    details:{"item": game_data["column_1"][y], "parent": non_interactable_column_1} 
-                });
-            }, time * start * 2); // 0 //2400
-
-            setTimeout(() => {
-                for(let i = start; i < end; i++){ 
-                    setTimeout(() => {
-                        PubSub.publish({
-                            event: "render_interactable_item",
-                            details:{
-                                        "correct_word": correct_word,
-                                        "item": game_data["column_2"][i], 
-                                        "item_parent": interactable_column_1,
-                                        "guesses_parent": guesses,
-                                        "hovered_word_parent": hovered_word
-                                    } 
-                        });
-                    }, time * i);
-                }  
-            }, time * start + time) // 100 // 1300 
-
-            setTimeout(() => {
-                PubSub.publish({
-                    event: "render_non_interactable_item",
-                    details:{"item": game_data["column_3"][y], "parent": non_interactable_column_2} 
-                });
-            }, time * end + start * time); // 1200 // 
-
-            setTimeout(() => {
-                for(let i = start; i < end; i++){ 
-                    setTimeout(() => {
-                        PubSub.publish({
-                            event: "render_interactable_item",
-                            details:{
-                                        "correct_word": correct_word,
-                                        "item": game_data["column_4"][i], 
-                                        "item_parent": interactable_column_2,
-                                        "guesses_parent": guesses,
-                                        "hovered_word_parent": hovered_word
-                                    } 
-                        });
-
-                        //when animation finished
-                        if(i === (game_rows/2 * game_columns) - 1){
-
-                            PubSub.publish({
-                                event: "render_attempts",
-                                details: {"parent": attempts_text, "attempts": attempts_remaining}
-                            });
-
-                            PubSub.publish({
-                                event: "enable_arrow_controls",
-                                details: {
-                                    "parent": hovered_word,
-                                    "guesses_parent":  guesses,
-                                    "correct_word": correct_word,
-                                    "game_rows": game_rows,
-                                    "game_columns": game_columns,
-                                    "interactable_column_1": interactable_column_1,
-                                    "interactable_column_2": interactable_column_2
-                                }
-                            });
-                        }
-                    }, time * i);
-                }  
-            }, time * end + time) // 1300 //2500 
+    PubSub.publish({
+        event: "activate_animation",
+        details: {
+            "non_interact_parent_1": non_interactable_column_1,
+            "non_interact_parent_2": non_interactable_column_2,
+            "interact_parent_1": interactable_column_1,
+            "interact_parent_2": interactable_column_2,
+            "game_info": game_info,
+            "game_rows": game_rows,
+            "game_columns": game_columns
         }
-    }, (time * company_chars.length) + (time * password_chars.length) + (time * attempts_chars.length));
+    });
 
-    function animate_top_text(container, chars){
-        for(let i = 0; i < chars.length; i++){
-            setTimeout(() => {
-                container.textContent += chars[i]
-            }, time * i)
+    PubSub.subscribe({
+        event: "enable_arrow_controls_after_animation",
+        listener: () => {
+            
+            PubSub.publish({
+                event: "enable_arrow_controls",
+                details: {
+                    "parent": hovered_word,
+                    "guesses_parent":  guesses,
+                    "correct_word": correct_word,
+                    "game_rows": game_rows,
+                    "game_columns": game_columns,
+                    "interactable_column_1": interactable_column_1,
+                    "interactable_column_2": interactable_column_2
+                }
+            });
         }
-    } */
-    
+    })
 }
 
 

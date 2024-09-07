@@ -1,8 +1,8 @@
 export function get_item_and_mark(item){
     let hovered_word = "";
 
-    if(item.className.includes("word")){
-        const word = document.querySelectorAll("." + item.className);
+    if(item.classList[0].includes("word")){
+        const word = document.querySelectorAll("." + item.classList[0]);
 
         word.forEach(item => {
             item.classList.add("make_green");

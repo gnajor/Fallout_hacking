@@ -1,12 +1,27 @@
-function render_typewriter_animation(){
-    animate_top_text(company_text, company_chars);
+import { PubSub } from "../../../logic/pubsub.js";
+
+function render_typewriter_animation(interact_parents, non_interact_parents, text_parent, game_structure){
+    const {interact_parent_1, interact_parent_2} = interact_parents; 
+    const {non_interact_parent_1, non_interact_parent_2} = non_interact_parents;
+    const {game_rows, game_columns} = game_structure;
+    const company_chars = text_parent.children[0].children;
+    const password_chars = text_parent.children[1].children;
+    const attempts_chars = text_parent.children[2].children;
+    const attempts = attempts_chars[attempts_chars.length - 1];
+
+    const time = 15;
+
+    document.body.classList.add("no_cursor_animation");
+    //document.querySelector("make_green").classList.remove("make_green");
+
+    animate_top_text(company_chars);
 
     setTimeout(() => {
-        animate_top_text(password_text, password_chars);
+        animate_top_text(password_chars);
     }, time * company_chars.length);
 
     setTimeout(() => {
-        animate_top_text(attempts_text, attempts_chars);
+        animate_top_text(attempts_chars);
     }, (time * company_chars.length) + (time * password_chars.length));
 
     setTimeout(() => {
@@ -15,69 +30,37 @@ function render_typewriter_animation(){
             let end = (y + 1) * game_columns;
 
             setTimeout(() => {
-                PubSub.publish({
-                    event: "render_non_interactable_item",
-                    details:{"item": game_data["column_1"][y], "parent": non_interactable_column_1} 
-                });
+                non_interact_parent_1.children[y].classList.add("show");
             }, time * start * 2); // 0 //2400
 
             setTimeout(() => {
                 for(let i = start; i < end; i++){ 
                     setTimeout(() => {
-                        PubSub.publish({
-                            event: "render_interactable_item",
-                            details:{
-                                        "correct_word": correct_word,
-                                        "item": game_data["column_2"][i], 
-                                        "item_parent": interactable_column_1,
-                                        "guesses_parent": guesses,
-                                        "hovered_word_parent": hovered_word
-                                    } 
-                        });
+                        interact_parent_1.children[i].classList.add("show");
+                        interact_parent_1.children[i].classList.remove("make_green");
                     }, time * i);
                 }  
             }, time * start + time) // 100 // 1300 
 
             setTimeout(() => {
-                PubSub.publish({
-                    event: "render_non_interactable_item",
-                    details:{"item": game_data["column_3"][y], "parent": non_interactable_column_2} 
-                });
+                non_interact_parent_2.children[y].classList.add("show");
+
             }, time * end + start * time); // 1200 // 
 
             setTimeout(() => {
                 for(let i = start; i < end; i++){ 
                     setTimeout(() => {
-                        PubSub.publish({
-                            event: "render_interactable_item",
-                            details:{
-                                        "correct_word": correct_word,
-                                        "item": game_data["column_4"][i], 
-                                        "item_parent": interactable_column_2,
-                                        "guesses_parent": guesses,
-                                        "hovered_word_parent": hovered_word
-                                    } 
-                        });
+                        interact_parent_2.children[i].classList.add("show");
 
-                        //when animation finished
                         if(i === (game_rows/2 * game_columns) - 1){
+                            attempts.classList.add("show");
+                            document.body.classList.remove("no_cursor_animation");
+                            interact_parent_1.children[0].classList.add("make_green");
+                            document.querySelector("#wrapper").classList.add("events");
 
                             PubSub.publish({
-                                event: "render_attempts",
-                                details: {"parent": attempts_text, "attempts": attempts_remaining}
-                            });
-
-                            PubSub.publish({
-                                event: "enable_arrow_controls",
-                                details: {
-                                    "parent": hovered_word,
-                                    "guesses_parent":  guesses,
-                                    "correct_word": correct_word,
-                                    "game_rows": game_rows,
-                                    "game_columns": game_columns,
-                                    "interactable_column_1": interactable_column_1,
-                                    "interactable_column_2": interactable_column_2
-                                }
+                                event: "enable_arrow_controls_after_animation",
+                                details: null
                             });
                         }
                     }, time * i);
@@ -86,11 +69,35 @@ function render_typewriter_animation(){
         }
     }, (time * company_chars.length) + (time * password_chars.length) + (time * attempts_chars.length));
 
-    function animate_top_text(container, chars){
-        for(let i = 0; i < chars.length; i++){
-            setTimeout(() => {
-                container.textContent += chars[i]
-            }, time * i)
+    function animate_top_text(children){
+        for(let i = 0; i < children.length; i++){
+            if(children[i].id !== "attempts"){
+                setTimeout(() => {
+                    children[i].classList.add("show");
+                }, time * i)
+            }
         }
     }
 }
+
+PubSub.subscribe({
+    event: "activate_animation",
+    listener: (details) => {
+        const {
+            non_interact_parent_1, 
+            non_interact_parent_2,
+            interact_parent_1,
+            interact_parent_2,
+            game_info,
+            game_columns,
+            game_rows
+        } = details;
+
+        const non_interact = {non_interact_parent_1, non_interact_parent_2};
+        const interact = {interact_parent_1, interact_parent_2} 
+        const text = game_info
+        const game_structure = {game_columns, game_rows}
+
+        render_typewriter_animation(interact, non_interact, text, game_structure);
+    }
+})
